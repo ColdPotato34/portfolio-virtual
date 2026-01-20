@@ -8,6 +8,7 @@
     --font-main: 'Fira Code', monospace;
     --font-mono: 'Fira Code', monospace;
     --sidebar-width: 380px;
+    --topbar-height: 60px; /* Altura da barra mobile */
 }
 
 * {
@@ -19,7 +20,6 @@
 html {
     scroll-behavior: smooth;
     font-size: 15px;
-    /* Evita overflow horizontal no mobile */
     overflow-x: hidden;
 }
 
@@ -32,12 +32,33 @@ body {
     overflow-x: hidden;
     position: relative;
     
-    /* Background Grid Estático */
+    /* Background Grid Estático (Fica atrás da chuva) */
     background-image: 
         linear-gradient(rgba(31, 31, 31, 0.95), rgba(31, 31, 31, 0.95)),
         linear-gradient(0deg, transparent 24%, rgba(74, 222, 128, 0.05) 25%, rgba(74, 222, 128, 0.05) 26%, transparent 27%, transparent 74%, rgba(74, 222, 128, 0.05) 75%, rgba(74, 222, 128, 0.05) 76%, transparent 77%, transparent),
         linear-gradient(90deg, transparent 24%, rgba(74, 222, 128, 0.05) 25%, rgba(74, 222, 128, 0.05) 26%, transparent 27%, transparent 74%, rgba(74, 222, 128, 0.05) 75%, rgba(74, 222, 128, 0.05) 76%, transparent 77%, transparent);
     background-size: 100% 100%, 60px 60px, 60px 60px;
+}
+
+/* --- BARRA SUPERIOR MOBILE --- */
+.mobile-topbar {
+    display: none; /* Invisível no desktop */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--topbar-height);
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid #333;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.mobile-topbar .hacker-title {
+    font-size: 1.5rem;
+    margin: 0;
 }
 
 /* Animações Keyframes */
@@ -59,9 +80,7 @@ body {
         filter: brightness(0) blur(5px);
     }
     60% {
-        filter: brightness(2)
-        blur(0px)
-        drop-shadow(0 0 10px var(--accent-green));
+        filter: brightness(2) blur(0px) drop-shadow(0 0 10px var(--accent-green));
     }
     100% {
         opacity: 1;
@@ -83,7 +102,6 @@ body {
 h1, h2, h3, h4 {
     font-weight: 600;
     line-height: 1.2;
-    /* Quebra palavras longas se necessário no mobile */
     word-wrap: break-word; 
 }
 
@@ -121,7 +139,6 @@ a {
     text-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
     display: inline-block;
     min-width: 1ch;
-    /* Garante que o título não estoure a tela no mobile */
     max-width: 100%;
 }
 
@@ -135,7 +152,6 @@ a {
     min-height: 1.2em;
     color: var(--text-light);
     display: inline-block;
-    /* Importante para mobile: */
     max-width: 100%;
     text-overflow: ellipsis; 
 }
@@ -157,7 +173,7 @@ a {
     margin: 3rem 0 2rem;
 }
 
-/* Botões com Efeito Scanline e Suporte a Touch */
+/* Botões */
 .btn {
     display: inline-block;
     padding: 12px 32px;
@@ -171,7 +187,6 @@ a {
     overflow: hidden;
     z-index: 1;
     transition: all 0.4s ease;
-    /* Evita zoom duplo no mobile ao clicar rápido */
     touch-action: manipulation;
 }
 
@@ -187,7 +202,6 @@ a {
     z-index: -1;
 }
 
-/* Hover e Active (Touch) */
 .btn:hover,
 .btn:active {
     transform: translateY(-5px);
@@ -317,7 +331,6 @@ section {
     z-index: 2;
 }
 
-/* Animação de Entrada */
 section:not(#home) {
     opacity: 0;
     transform: translateY(50px) scale(0.95);
@@ -365,7 +378,6 @@ section.section-visible {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    /* Garante que o texto não ultrapasse o container */
     max-width: 100%;
 }
 
@@ -390,7 +402,7 @@ section.section-visible {
 .home-buttons {
     display: flex;
     gap: 1.5rem;
-    flex-wrap: wrap; /* Permite que os botões caiam de linha se faltar espaço */
+    flex-wrap: wrap;
 }
 
 /* Sobre Mim */
@@ -424,47 +436,144 @@ section.section-visible {
     align-items: center;
 }
 
-/* Serviços */
+/* Serviços (Layout Grid) */
 .services-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 2rem;
 }
 
+/* --- CARDS DE SERVIÇOS E POPUPS (Estilo VS Code) --- */
+
 .service-card {
     background-color: var(--bg-primary);
-    padding: 2.5rem 2rem;
     border-radius: 16px;
     text-align: center;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 2.5rem 2rem;
     position: relative;
-    z-index: 1;
+    /* Permite que o popup saia dos limites do card */
+    overflow: visible; 
+    transition: all 0.3s ease;
     border: 1px solid transparent;
+    cursor: default;
+    z-index: 1;
 }
 
-/* Hover e Active (Touch) para Serviços */
-.service-card:hover,
-.service-card:active {
-    transform: translateY(-8px) scale(1.02);
-    background-color: #1a1a1a;
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.4),
-                -3px 0 0 rgba(74, 222, 128, 0.8),
-                3px 0 0 rgba(60, 180, 100, 0.8);
+.service-card:hover {
+    background-color: #2a2a2a;
     border-color: var(--accent-green);
+    transform: translateY(-5px);
+    z-index: 10; /* Traz para frente ao passar o mouse */
 }
 
 .service-icon {
     font-size: 3rem;
     color: var(--accent-green);
-    margin-bottom: 1.5rem;
-    display: inline-block;
-    transition: all 0.4s ease;
+    margin-bottom: 1rem;
+    transition: transform 0.3s;
 }
 
-.service-card:hover .service-icon,
-.service-card:active .service-icon {
-    text-shadow: 0 0 20px var(--accent-green);
-    transform: scale(1.15) rotate(5deg);
+.service-card:hover .service-icon {
+    transform: scale(1.1);
+    text-shadow: 0 0 15px var(--accent-green);
+}
+
+/* O Popup Flutuante */
+.service-popup {
+    position: absolute;
+    bottom: 115%; /* Posiciona acima do card */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px) scale(0.95);
+    width: 280px;
+    background-color: #1e1e1e; /* Fundo escuro VS Code */
+    border: 1px solid #333;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 15px rgba(74, 222, 128, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.service-card:hover .service-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Seta (Triângulo) do Popup */
+.service-popup::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background-color: #1e1e1e;
+    border-bottom: 1px solid #333;
+    border-right: 1px solid #333;
+}
+
+/* Cabeçalho do Popup */
+.popup-header {
+    background-color: #252526;
+    padding: 6px 12px;
+    border-bottom: 1px solid #333;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-title {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-green);
+}
+
+.popup-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.control-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #555;
+}
+
+.control-dot:nth-child(1) {
+    background-color: #ff5f56;
+} 
+
+.control-dot:nth-child(2) {
+    background-color: #ffbd2e;
+} 
+
+.control-dot:nth-child(3) {
+    background-color: #27c93f;
+}
+
+.popup-body {
+    padding: 15px;
+}
+
+.popup-body p {
+    font-size: 0.85rem;
+    color: #ce9178; /* Cor de string */
+    line-height: 1.5;
+    margin: 0;
+    text-align: left;
+    font-family: var(--font-mono);
+}
+
+.popup-body p::before,
+.popup-body p::after {
+    content: '"';
+    color: #ce9178;
 }
 
 /* Portfólio */
@@ -539,7 +648,6 @@ section.section-visible {
     z-index: 2;
 }
 
-/* Cores das Skills (Azul/Verde) */
 .skill-card.blue {
     border-color: var(--accent-blue);
 }
@@ -616,7 +724,150 @@ section.section-visible {
     margin-bottom: 1rem;
 }
 
-/* Media Queries */
+/* --- 4. Animação Chuva Matrix (Fundo) --- */
+.hacker-bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Atrás de tudo */
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.hacker-line {
+    position: absolute;
+    top: -100%;
+    width: 35px;
+    font-family: 'Fira Code', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-green);
+    text-shadow: 0 0 10px var(--accent-green);
+    word-break: break-all;
+    line-height: 1.2;
+    opacity: 0;
+    animation: binary-fall linear infinite;
+    mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+}
+
+@keyframes binary-fall {
+    0% {
+        top: -100%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
+}
+
+/* Configurações Individuais das Linhas */
+.hacker-line:nth-child(1) {
+    left: 5%;
+    animation-duration: 5s;
+    animation-delay: 0s;
+    font-size: 20px;
+}
+
+.hacker-line:nth-child(2) {
+    left: 12%;
+    animation-duration: 7s;
+    animation-delay: 1s;
+    font-size: 28px;
+}
+
+.hacker-line:nth-child(3) {
+    left: 25%;
+    animation-duration: 4s;
+    animation-delay: 2s;
+    font-size: 22px;
+}
+
+.hacker-line:nth-child(4) {
+    left: 35%;
+    animation-duration: 6s;
+    animation-delay: 4s;
+}
+
+.hacker-line:nth-child(5) {
+    left: 42%;
+    animation-duration: 8s;
+    animation-delay: 0.5s;
+    font-size: 32px;
+}
+
+.hacker-line:nth-child(6) {
+    left: 55%;
+    animation-duration: 4.5s;
+    animation-delay: 3s;
+}
+
+.hacker-line:nth-child(7) {
+    left: 65%;
+    animation-duration: 9s;
+    animation-delay: 1.5s;
+    font-size: 18px;
+}
+
+.hacker-line:nth-child(8) {
+    left: 75%;
+    animation-duration: 5.5s;
+    animation-delay: 0.2s;
+}
+
+.hacker-line:nth-child(9) {
+    left: 85%;
+    animation-duration: 6.5s;
+    animation-delay: 2.5s;
+    font-size: 26px;
+}
+
+.hacker-line:nth-child(10) {
+    left: 92%;
+    animation-duration: 4s;
+    animation-delay: 5s;
+}
+
+.hacker-line:nth-child(11) {
+    left: 18%;
+    animation-duration: 6s;
+    animation-delay: 6s;
+}
+
+.hacker-line:nth-child(12) {
+    left: 48%;
+    animation-duration: 5s;
+    animation-delay: 7.5s;
+}
+
+.hacker-line:nth-child(13) {
+    left: 70%;
+    animation-duration: 8s;
+    animation-delay: 4.5s;
+}
+
+.hacker-line:nth-child(14) {
+    left: 30%;
+    animation-duration: 4.2s;
+    animation-delay: 1.2s;
+}
+
+.hacker-line:nth-child(15) {
+    left: 80%;
+    animation-duration: 7.2s;
+    animation-delay: 3.5s;
+}
+
+/* MEDIA QUERIES */
 
 /* Telas Grandes */
 @media (min-width: 1600px) {
@@ -645,7 +896,7 @@ section.section-visible {
     }
     .home-text {
         align-items: center;
-        text-align: center; /* Centraliza texto no tablet */
+        text-align: center;
     }
     .home-buttons {
         justify-content: center;
@@ -669,23 +920,28 @@ section.section-visible {
     }
 }
 
-/* Mobile (Tablets em pé e Celulares grandes) */
+/* Mobile */
 @media (max-width: 820px) {
+    /* Exibir barra superior e esconder sidebar */
+    .mobile-topbar {
+        display: flex;
+    }
     .sidebar {
         display: none;
     }
+    
     .main-content {
         margin-left: 0;
         width: 100%;
         padding: 1rem 0;
+        margin-top: var(--topbar-height); /* Empurra conteúdo para baixo da barra */
     }
+    
     section {
         padding: 3rem 1.5rem;
         border-radius: 24px;
         margin-bottom: 1rem;
     }
-    
-    /* Desativa animação de scroll no mobile para performance */
     section:not(#home) {
         opacity: 1;
         transform: none;
@@ -695,11 +951,10 @@ section.section-visible {
     .section-title,
     .subsection-title {
         text-align: center;
-        font-size: 2rem; /* Reduz fonte do título */
+        font-size: 2rem;
     }
-    
     .home-text h1 {
-        font-size: 2rem; /* Reduz título principal */
+        font-size: 2rem;
     }
     .home-text h2 {
         font-size: 1.2rem;
@@ -707,7 +962,6 @@ section.section-visible {
     .home-text p {
         margin: 0 auto 2.5rem;
     }
-    
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         justify-items: center;
@@ -720,35 +974,31 @@ section.section-visible {
     }
 }
 
-/* Mobile Pequeno (Celulares) */
+/* Mobile Pequeno */
 @media (max-width: 600px) {
     section {
         padding: 2.5rem 1.5rem;
         border-radius: 20px;
     }
     .home-text h1 {
-        font-size: 1.8rem; /* Ajuste fino */
+        font-size: 1.8rem;
     }
     .profile-image {
         width: 240px;
         height: 240px;
-    }
-    .social-links {
-        gap: 2rem;
     }
     .social-icon i {
         font-size: 3.5rem;
     }
 }
 
-/* Mobile Muito Pequeno (iPhone SE, etc) */
+/* Mobile Muito Pequeno */
 @media (max-width: 380px) {
     .home-text h1 {
         font-size: 1.5rem;
     }
     .btn {
         width: 100%;
-        text-align: center;
         display: block;
         margin-bottom: 10px;
     }
@@ -759,4 +1009,85 @@ section.section-visible {
     .stats-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Preferências e Acessibilidade */
+a:focus,
+button:focus,
+.btn:focus {
+    outline: 2px solid #fff;
+    outline-offset: 4px;
+    box-shadow: 0 0 15px var(--accent-green);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .typing-effect {
+        border-right: none;
+    }
+}
+
+::selection {
+    background-color: var(--accent-green);
+    color: #000;
+}
+
+@media (prefers-contrast: more) {
+    :root {
+        --bg-primary: #000000;
+        --bg-secondary: #000000;
+        --text-light: #FFFFFF;
+    }
+    .service-card,
+    .skill-card,
+    .project-card,
+    section {
+        border: 2px solid var(--accent-green) !important;
+        background: #000 !important;
+        box-shadow: none !important;
+    }
+    a,
+    .hacker-link {
+        text-decoration: underline !important;
+        text-decoration-thickness: 2px !important;
+    }
+    .btn {
+        border: 3px solid #fff !important;
+        color: #fff !important;
+    }
+}
+
+/* Barra de Rolagem */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-green) var(--bg-secondary);
+}
+
+body {
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--accent-green);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #fff;
+    box-shadow: 0 0 10px var(--accent-green);
 }
